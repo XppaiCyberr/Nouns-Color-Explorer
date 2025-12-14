@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouns Color Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #2563eb, #ec4899);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Controls */
+        .controls-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInUp 0.6s ease-out 0.1s backwards;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .color-picker-wrapper {
+            position: relative;
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .color-picker-wrapper:hover {
+            transform: scale(1.05);
+        }
+
+        input[type="color"] {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            border: none;
+        }
+
+        input[type="text"] {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Inter', monospace;
+            font-size: 1rem;
+            width: 140px;
+            transition: border-color 0.2s;
+            text-transform: uppercase;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .slider-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        input[type="range"] {
+            width: 150px;
+            accent-color: var(--primary);
+        }
+
+        select {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button.btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button.btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button.btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        /* Grid */
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 0 0.5rem;
+        }
+
+        .stats {
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .noun-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .noun-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            animation: fadeIn 0.5s ease-out backwards;
+        }
+
+        .noun-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .noun-image-container {
+            background: #f1f5f9;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .noun-image {
+            width: 100%;
+            height: auto;
+            image-rendering: pixelated;
+            border-radius: 4px;
+        }
+
+        .noun-info {
+            padding: 1rem;
+        }
+
+        .noun-id {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Color Bar Visualization */
+        .color-bar {
+            height: 8px;
+            width: 100%;
+            display: flex;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .color-segment {
+            height: 100%;
+        }
+
+        .match-badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 999px;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            transform: scale(0.95);
+            transition: transform 0.3s;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-image {
+            width: 100%;
+            border-radius: 12px;
+            image-rendering: pixelated;
+            background: #f8fafc;
+        }
+
+        .color-list-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .color-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: background 0.1s;
+        }
+
+        .color-row:hover {
+            background: #f1f5f9;
+        }
+
+        .color-swatch-lg {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .color-details {
+            flex: 1;
+        }
+
+        .color-hex {
+            font-family: monospace;
+            font-weight: 600;
+        }
+
+        .color-pct {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .modal {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Nouns Color Explorer</h1>
+            <p class="subtitle">Discover Nouns by their palette. Enter a hex code to start.</p>
+        </header>
+
+        <div class="controls-card">
+            <div class="input-group">
+                <div class="color-picker-wrapper">
+                    <input type="color" id="colorPicker" value="#e1d7d5">
+                </div>
+                <input type="text" id="hexInput" value="#e1d7d5" placeholder="#RRGGBB">
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>Color Tolerance</span>
+                    <span id="toleranceValue">30</span>
+                </div>
+                <input type="range" id="toleranceSlider" min="0" max="100" value="30">
+            </div>
+
+            <div class="input-group">
+                <select id="sortSelect">
+                    <option value="match">Match Strength</option>
+                    <option value="brightest">Brightest</option>
+                    <option value="darkest">Darkest</option>
+                    <option value="most_colorful">Most Colorful</option>
+                    <option value="least_colorful">Least Colorful</option>
+                </select>
+            </div>
+
+            <button class="btn-primary" onclick="search()">Find Nouns</button>
+        </div>
+
+        <div class="results-header">
+            <div class="stats" id="resultStats">Ready to search</div>
+        </div>
+
+        <div class="noun-grid" id="grid">
+            <!-- Results will be injected here -->
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal">
+            <button class="close-modal" onclick="closeModal(event)">×</button>
+            <div class="modal-left">
+                <img id="modalImg" src="" class="modal-image" alt="Noun Detail">
+            </div>
+            <div class="modal-right">
+                <h2 id="modalTitle" style="margin-bottom: 1rem;">Noun #</h2>
+                <div id="modalColors" class="color-list-detail"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let nounData = {};
+        let isDataLoaded = false;
+
+        // Load Data
+        fetch('noun_colors_extracted.json')
+            .then(res => res.json())
+            .then(data => {
+                nounData = data;
+                isDataLoaded = true;
+                document.getElementById('resultStats').textContent = `Loaded ${Object.keys(data).length} Nouns. Ready to search.`;
+                search();
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('resultStats').textContent = "Error loading data. Ensure noun_colors_extracted.json is present.";
+            });
+
+        // Sync inputs
+        const colorPicker = document.getElementById('colorPicker');
+        const hexInput = document.getElementById('hexInput');
+        const toleranceSlider = document.getElementById('toleranceSlider');
+        const toleranceValue = document.getElementById('toleranceValue');
+        const sortSelect = document.getElementById('sortSelect');
+
+        colorPicker.addEventListener('input', (e) => {
+            hexInput.value = e.target.value;
+        });
+
+        hexInput.addEventListener('input', (e) => {
+            let val = e.target.value;
+            if (val.startsWith('#') && val.length === 7) {
+                colorPicker.value = val;
+            } else if (!val.startsWith('#') && val.length === 6) {
+                colorPicker.value = '#' + val;
+            }
+        });
+
+        toleranceSlider.addEventListener('input', (e) => {
+            toleranceValue.textContent = e.target.value;
+        });
+
+        sortSelect.addEventListener('change', () => {
+            search();
+        });
+
+        // Color Utils
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function getLuminance(hex) {
+            const rgb = hexToRgb(hex);
+            if (!rgb) return 0;
+            return 0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b;
+        }
+
+        function colorDistance(hex1, hex2) {
+            const rgb1 = hexToRgb(hex1);
+            const rgb2 = hexToRgb(hex2);
+            if (!rgb1 || !rgb2) return 1000;
+            // Simple Euclidean distance in RGB space
+            return Math.sqrt(
+                Math.pow(rgb1.r - rgb2.r, 2) +
+                Math.pow(rgb1.g - rgb2.g, 2) +
+                Math.pow(rgb1.b - rgb2.b, 2)
+            );
+        }
+
+        // Search Logic
+        function search() {
+            if (!isDataLoaded) return;
+
+            const targetHex = hexInput.value.startsWith('#') ? hexInput.value : '#' + hexInput.value;
+            const tolerance = parseInt(toleranceSlider.value);
+            const sortBy = sortSelect.value;
+
+            // Max distance in RGB is sqrt(255^2 * 3) ≈ 441. 
+            // Map tolerance 0-100 to roughly 0-150 distance for usability
+            const maxDist = tolerance * 1.5;
+
+            const results = [];
+
+            Object.entries(nounData).forEach(([id, colors]) => {
+                let totalPixels = 0;
+                let matchPixels = 0;
+                let bestMatchColor = null;
+                let minDist = Infinity;
+                let weightedLuminance = 0;
+
+                // Calculate metrics
+                for (let [hex, count] of Object.entries(colors)) {
+                    totalPixels += count;
+                    weightedLuminance += getLuminance(hex) * count;
+
+                    const dist = colorDistance(targetHex, hex);
+                    if (dist <= maxDist) {
+                        matchPixels += count;
+                        if (dist < minDist) {
+                            minDist = dist;
+                            bestMatchColor = hex;
+                        }
+                    }
+                }
+
+                const avgLuminance = totalPixels > 0 ? weightedLuminance / totalPixels : 0;
+                const matchPct = totalPixels > 0 ? (matchPixels / totalPixels) * 100 : 0;
+
+                // If sorting by match, only include matches. Otherwise include all (or maybe just top 1000?)
+                if (sortBy !== 'match' || matchPixels > 0) {
+                    results.push({
+                        id,
+                        colors,
+                        totalPixels,
+                        matchPixels,
+                        matchPct,
+                        bestMatchColor,
+                        avgLuminance,
+                        colorCount: Object.keys(colors).length
+                    });
+                }
+            });
+
+            // Sorting
+            results.sort((a, b) => {
+                switch (sortBy) {
+                    case 'brightest':
+                        return b.avgLuminance - a.avgLuminance;
+                    case 'darkest':
+                        return a.avgLuminance - b.avgLuminance;
+                    case 'most_colorful':
+                        return b.colorCount - a.colorCount;
+                    case 'least_colorful':
+                        return a.colorCount - b.colorCount;
+                    case 'match':
+                    default:
+                        return b.matchPct - a.matchPct;
+                }
+            });
+
+            renderResults(results);
+        }
+
+        function renderResults(results) {
+            const grid = document.getElementById('grid');
+            const stats = document.getElementById('resultStats');
+
+            grid.innerHTML = '';
+            stats.textContent = `Found ${results.length} Nouns. Showing top 100.`;
+
+            // Limit to top 100 for performance
+            results.slice(0, 100).forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'noun-card';
+                card.style.animationDelay = `${Math.min(index * 0.05, 1)}s`;
+                card.onclick = () => openModal(item);
+
+                // Generate color bar
+                const sortedColors = Object.entries(item.colors).sort((a, b) => b[1] - a[1]);
+                let barHtml = '';
+                sortedColors.forEach(([hex, count]) => {
+                    const pct = (count / item.totalPixels) * 100;
+                    if (pct > 1) { // Only show significant colors in bar
+                        barHtml += `<div class="color-segment" style="background-color: ${hex}; width: ${pct}%;"></div>`;
+                    }
+                });
+
+                // Badge content depends on sort
+                let badgeText = `${Math.round(item.matchPct)}% Match`;
+                let badgeColor = item.bestMatchColor || '#e2e8f0';
+                let badgeTextColor = '#1e40af';
+
+                const sortBy = sortSelect.value;
+                if (sortBy === 'brightest' || sortBy === 'darkest') {
+                    badgeText = `Lum: ${Math.round(item.avgLuminance)}`;
+                    badgeColor = `rgb(${item.avgLuminance}, ${item.avgLuminance}, ${item.avgLuminance})`;
+                    badgeTextColor = item.avgLuminance > 128 ? '#000' : '#fff';
+                } else if (sortBy.includes('colorful')) {
+                    badgeText = `${item.colorCount} Colors`;
+                    badgeColor = '#f3e8ff';
+                    badgeTextColor = '#6b21a8';
+                }
+
+                card.innerHTML = `
+                <div class="noun-image-container">
+                    <img src="https://noun.pics/${item.id}.png" class="noun-image" loading="lazy" alt="Noun ${item.id}">
+                </div>
+                <div class="noun-info">
+                    <div class="match-badge" style="background-color: ${badgeColor}; color: ${badgeTextColor}; border: 1px solid rgba(0,0,0,0.1);">
+                        ${badgeText}
+                    </div>
+                    <div class="noun-id">Noun ${item.id}</div>
+                    <div class="color-bar">${barHtml}</div>
+                </div>
+            `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Modal
+        function openModal(item) {
+            const modal = document.getElementById('modalOverlay');
+            const img = document.getElementById('modalImg');
+            const title = document.getElementById('modalTitle');
+            const list = document.getElementById('modalColors');
+
+            img.src = `https://noun.pics/${item.id}.png`;
+            title.textContent = `Noun ${item.id}`;
+            modal.classList.add('active');
+
+            // Render detailed color list
+            const sortedColors = Object.entries(item.colors).sort((a, b) => b[1] - a[1]);
+            list.innerHTML = sortedColors.map(([hex, count]) => {
+                const pct = ((count / item.totalPixels) * 100).toFixed(1);
+                return `
+                <div class="color-row">
+                    <div class="color-swatch-lg" style="background-color: ${hex};"></div>
+                    <div class="color-details">
+                        <div class="color-hex">${hex}</div>
+                        <div class="color-pct">${pct}% coverage (${count} px)</div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function closeModal(e) {
+            if (e.target === document.getElementById('modalOverlay') || e.target.classList.contains('close-modal')) {
+                document.getElementById('modalOverlay').classList.remove('active');
+            }
+        }
+    </script>
+
+</body>
+
+</html>
